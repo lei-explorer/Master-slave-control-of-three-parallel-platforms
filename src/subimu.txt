@@ -1,0 +1,39 @@
+#include <sensor_msgs/Imu.h>
+
+sub_imu_data_ = m_nh.subscribe("/imu", 1, &remote_control::subimudataCB, this);
+
+
+void remote_control::subimudataCB(sensor_msgs::Imu msg) {
+    cur_imu_w_ = msg.orientation.w;
+    cur_imu_x_ = msg.orientation.x;
+    cur_imu_y_ = msg.orientation.y;
+    cur_imu_z_ = msg.orientation.z;
+
+}
+
+
+void remote_control::trans_quaToeuler() {
+
+    ros::Rate loop_rate(50);
+    while (ros::ok())
+    {
+        std::cout << " ........ " << std::endl;
+//        ros::spinOnce();
+        KDL::Rotation imu_rot;
+        Eigen::Quaterniond Q(cur_imu_w_,cur_imu_x_,cur_imu_y_,cur_imu_z_);
+        Q = Q.normalized();
+        imu_rot = KDL::Rotation::Quaternion(Q.x(),Q.y(),Q.z(),Q.w());
+
+        double euler_x,euler_y,euler_z;
+        imu_rot.GetEulerZYX(euler_z,euler_y,euler_x);
+        std::cout << " euler: "  << euler_z << " " << euler_y  << " " << euler_x  << std::endl;
+//        std::vector<double> euler;
+//        euler[0] = euler_z;
+//        euler[1] = euler_y;
+//        euler[2] = euler_x;
+
+//        std::cout << "euler: " << euler[0] << " " << euler[1] << " "<< euler[2] << std::endl;
+//        return euler;
+        ros::spinOnce();
+        loop_rate.sleep();
+    }

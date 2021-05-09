@@ -1,0 +1,2 @@
+sensor_imu:servo_drive:vicon_bridge-master
+-DCATKIN_DEVEL_PREFIX=/home/lzw/ding/devel -DCMAKE_INSTALL_PREFIX=/home/lzw/ding/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/home/lzw/ding/devel
+
+Name: servo_drive
+Description: Description of servo_drive
+Version: 0.0.0
+Cflags: -I/home/lzw/ding/devel/include
+Libs: -L${prefix}/lib 
+Requires: 

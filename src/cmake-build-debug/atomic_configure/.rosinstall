@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/lzw/ding/src/cmake-build-debug/devel/setup.sh

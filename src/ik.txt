@@ -1,0 +1,49 @@
+%运动学逆解求解 
+%%%动平台P，静平台O，三个主动臂由电机驱动。水平时刻为默认的转角0°；
+%%%输入单位是毫米（mm）和度（°）;输出单位rad。
+function [thetas] = IK(m,n,h) %m为β,n为γ(角度值）
+% 将输入的度转化为弧度制
+x = m/180*pi;
+y = n/180*pi;
+% 输入平台参数和各个常向量
+r = 40;
+R = 90;
+l1 = 100;
+l2 = 110;
+l3 = 74.5;
+n = [0;0;1];
+ab = [0.5*3^0.5;-0.5;0];
+ac = [0.5*3^0.5;0.5;0];
+% 求动平台三个顶点在动平台变化后相对于动平台原坐标系的坐标
+A1 = [-R/2;0;0];
+B1 = [R/4;3^0.5*R/4;0];
+C1 = [R/4;-3^0.5*R/4;0];
+Pa = [-r*cos(x);0;r*sin(x)];
+Pb = [(r*cos(x)+3^0.5*r*sin(y))/2;3^0.5*r*cos(y)/2;(-r*sin(x)+3^0.5*r*cos(x)*sin(y))/2];
+Pc = [(r*cos(x)-3^0.5*r*sin(x)*sin(y))/2;-(3^0.5*r*cos(y))/2;(-r*sin(x)-3^0.5*r*cos(x)*sin(y))/2];
+% 求λ
+va = 0;
+vb = pi/2-acos(dot(ab,Pb)/norm(Pb));
+vc = pi/2-acos(dot(ac,Pc)/norm(Pc));
+% 求三个第三关节在静坐标系中的坐标
+A03 = [-l3*cos(x)-r*cos(x);0;l3*sin(x)+r*sin(x)+h];
+B03 = [(r*cos(x)-3^0.5*l3*sin(vb)*cos(x)-sin(x)*sin(y)+l3*cos(vb)*(cos(x)+3^0.5*sin(x)*sin(y))+3^0.5*r*sin(x)*sin(y))/2;(3^0.5*r*cos(y)+l3*cos(y)*sin(vb)+3^0.5*l3*cos(y)*cos(vb))/2;h-(r*sin(x)-3^0.5*l3*sin(vb)*sin(x)-cos(x)*sin(y)+l3*cos(vb)*(sin(x)-3^0.5*cos(x)*sin(y))-3^0.5*r*cos(x)*sin(y))/2];
+C03 = [(r*cos(x)+3^0.5*l3*sin(vc)*cos(x)+sin(x)+sin(y)+l3*cos(vc)*(cos(x)-3^0.5*sin(x)*sin(y))-3^0.5*r*sin(x)*sin(y))/2;(-3^0.5*r*cos(y)+l3*cos(y)*sin(vc)-3^0.5*l3*cos(y)*cos(vc))/2;h-(r*sin(x)+3^0.5*l3*sin(vc)*sin(x)+cos(x)*sin(y)+l3*cos(vc)*(sin(x)+3^0.5*cos(x)*sin(y))+3^0.5*r*cos(x)*sin(y))/2];
+% 求三个第一关节第三关节连线在静坐标系中的坐标
+A31 = A03-A1;
+B31 = B03-B1;
+C31 = C03-C1;
+% 求一三关节夹角
+kesaiA = acos(((l1)^2+norm(A31)^2-l2^2)/(2*l1*norm(A31)));
+kesaiB = acos(((l1)^2+norm(B31)^2-l2^2)/(2*l1*norm(B31)));
+kesaiC = acos(((l1)^2+norm(C31)^2-l2^2)/(2*l1*norm(C31)));
+% 求一三关节连线和xoy平面法向量夹角
+fiA=pi/2-acos(dot(A31,n)/norm(A31));
+fiB=pi/2-acos(dot(B31,n)/norm(B31));
+fiC=pi/2-acos(dot(C31,n)/norm(C31));
+% 求电机转角
+thetaA = fiA-kesaiA;
+thetaB = fiB-kesaiB;
+thetaC = fiC-kesaiC;
+
+thetas=[thetaA;thetaB;thetaC];
